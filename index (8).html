@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPI 2026 — Consulta de Efetivo</title>
+<script src="dados.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+:root{
+  --bg:#070d1a;--surface:#0f1923;--surface2:#162033;--border:#1a3050;
+  --accent:#1565c0;--accent2:#1e88e5;--accent3:#42a5f5;
+  --text:#e8edf5;--muted:#5f7a9a;--gold:#f9a825;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:13px}
+
+/* HEADER */
+header{background:linear-gradient(180deg,#0a1428,#0d1930);border-bottom:2px solid var(--border);padding:0 20px;position:sticky;top:0;z-index:200}
+.hdr{max-width:1800px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 0}
+.logo{width:44px;height:44px;background:linear-gradient(135deg,#1565c0,#42a5f5);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:18px;color:#fff;flex-shrink:0}
+.hdr-title h1{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:1px}
+.hdr-title p{font-size:11px;color:var(--muted)}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.badge-count{background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:16px;font-size:12px;color:var(--accent3);font-weight:600;white-space:nowrap}
+.ext-link{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:7px;font-size:12px;font-weight:500;text-decoration:none;transition:all 0.2s;white-space:nowrap}
+.link-green{background:#1b5e20;color:#a5d6a7;border:1px solid #2e7d32}.link-green:hover{background:#2e7d32}
+.link-blue{background:#0d2a4a;color:#90caf9;border:1px solid #1565c0}.link-blue:hover{background:#1565c0;color:#fff}
+
+/* TABS */
+.tabs-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px}
+.tabs-inner{max-width:1800px;margin:0 auto;display:flex}
+.tab{padding:11px 18px;font-size:14px;font-weight:500;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;transition:all 0.2s;font-family:'Rajdhani',sans-serif}
+.tab:hover{color:var(--text)}.tab.active{color:var(--accent3);border-bottom-color:var(--accent3)}
+
+/* MAIN */
+.main{max-width:1800px;margin:0 auto;padding:16px 20px}
+.fp{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.fp-title{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+.filter-row{display:grid;gap:10px;margin-bottom:10px}
+.fr1{grid-template-columns:2.5fr 1fr 1fr 1fr 1fr 1fr}
+.fr2{grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr}
+@media(max-width:1200px){.fr1,.fr2{grid-template-columns:1fr 1fr 1fr}}
+@media(max-width:700px){.fr1,.fr2{grid-template-columns:1fr 1fr}}
+.fg label{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;font-weight:500}
+.fg input,.fg select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--text);font-size:12px;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s}
+.fg input:focus,.fg select:focus{border-color:var(--accent2)}
+.fg select option{background:var(--surface2)}
+.fa{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.btn{padding:7px 15px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all 0.2s}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}.btn-ghost:hover{border-color:var(--accent2);color:var(--text)}
+.rc{margin-left:auto;font-size:12px;color:var(--muted)}.rc span{color:var(--accent3);font-weight:600}
+
+/* TABLE */
+.tw{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.ts-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead{background:var(--surface2)}
+th{padding:10px 12px;text-align:left;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+th:hover{color:var(--accent3)}
+th.sa::after{content:" ↑";color:var(--accent3)}th.sd::after{content:" ↓";color:var(--accent3)}
+tbody tr{border-bottom:1px solid rgba(26,48,80,0.5);transition:background 0.15s;cursor:pointer}
+tbody tr:hover{background:rgba(21,101,192,0.1)}
+td{padding:8px 12px;vertical-align:middle;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis}
+.td-name{max-width:200px;font-weight:500;color:#e3f2fd}
+.td-posto{color:var(--accent3);font-weight:500;font-size:11px}
+.td-unit{font-size:11px;color:var(--muted)}
+.td-cpai{font-size:11px;color:var(--gold);font-weight:600}
+.thumb-ph{width:32px;height:32px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted)}
+
+/* BADGES */
+.bdg{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;white-space:nowrap}
+.bg{background:rgba(67,160,71,0.15);color:#81c784;border:1px solid rgba(67,160,71,0.3)}
+.br{background:rgba(239,83,80,0.15);color:#ef9a9a;border:1px solid rgba(239,83,80,0.3)}
+.by{background:rgba(255,167,38,0.15);color:#ffcc80;border:1px solid rgba(255,167,38,0.3)}
+.bb{background:rgba(66,165,245,0.15);color:#90caf9;border:1px solid rgba(66,165,245,0.3)}
+.bgr{background:rgba(95,122,154,0.15);color:var(--muted);border:1px solid rgba(95,122,154,0.3)}
+
+/* FUNCAO BADGES */
+.fn{padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;cursor:help}
+.fc{background:rgba(249,168,37,0.2);color:#ffd54f;border:1px solid rgba(249,168,37,0.4)}
+.fs{background:rgba(255,167,38,0.15);color:#ffcc80;border:1px solid rgba(255,167,38,0.3)}
+.f1{background:rgba(21,101,192,0.25);color:#90caf9;border:1px solid rgba(33,150,243,0.4)}
+.f2{background:rgba(106,27,154,0.25);color:#ce93d8;border:1px solid rgba(156,39,176,0.4)}
+.f3{background:rgba(27,94,32,0.3);color:#a5d6a7;border:1px solid rgba(67,160,71,0.4)}
+.f4{background:rgba(183,28,28,0.25);color:#ef9a9a;border:1px solid rgba(239,83,80,0.4)}
+.f5{background:rgba(0,96,100,0.3);color:#80cbc4;border:1px solid rgba(0,150,136,0.4)}
+
+/* PHONE */
+.ph-a{display:inline-flex;align-items:center;gap:5px;color:#81c784;text-decoration:none;font-weight:500;padding:3px 8px;border-radius:5px;background:rgba(67,160,71,0.08);border:1px solid rgba(67,160,71,0.2);font-size:11px}
+.ph-a:hover{background:rgba(67,160,71,0.18)}
+.no-ph{color:var(--muted);font-size:11px}
+
+/* PAGINATION */
+.pg{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px;border-top:1px solid var(--border);flex-wrap:wrap}
+.pgb{min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:12px;transition:all 0.2s;padding:0 7px;font-family:'Inter',sans-serif}
+.pgb:hover{border-color:var(--accent2);color:var(--text)}.pgb.active{background:var(--accent);border-color:var(--accent);color:white}
+.pgb:disabled{opacity:0.3;cursor:not-allowed}.pgi{color:var(--muted);font-size:12px}
+.empty,.loading{padding:50px 20px;text-align:center;color:var(--muted)}
+.spinner{width:22px;height:22px;border:3px solid var(--border);border-top-color:var(--accent3);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hint{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,0.82);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.ov.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;transform:scale(0.95);transition:transform 0.2s;position:relative}
+.ov.open .modal{transform:scale(1)}
+.mc{position:absolute;top:14px;right:14px;width:30px;height:30px;background:var(--surface2);border:1px solid var(--border);border-radius:50%;color:var(--muted);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;z-index:10}
+.mc:hover{background:#b71c1c;color:#fff;border-color:#b71c1c}
+.mpa{background:linear-gradient(180deg,#0d1826,#111f35);display:flex;align-items:center;justify-content:center;padding:28px;gap:24px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.mphoto{width:130px;height:130px;border-radius:50%;object-fit:cover;border:3px solid var(--accent2);box-shadow:0 0 0 4px rgba(30,136,229,0.15);display:block;flex-shrink:0}
+.mph-ph{width:130px;height:130px;border-radius:50%;background:var(--surface2);border:3px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:48px;color:var(--muted);flex-shrink:0}
+.mph-ld{width:130px;height:130px;border-radius:50%;background:var(--surface2);border:3px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mib{text-align:center}
+.mn{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:4px;line-height:1.2}
+.mg{font-size:13px;color:var(--accent3);margin-bottom:6px}
+.mp{font-size:12px;color:var(--muted)}
+.mfn{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;justify-content:center}
+.mbody{padding:20px}
+.msect{margin-bottom:18px}
+.mst{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mf{background:var(--surface2);border-radius:8px;padding:8px 12px}
+.mf label{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.mf span{font-size:12px;color:var(--text);font-weight:500}
+.mwa{display:inline-flex;align-items:center;gap:6px;color:#81c784;text-decoration:none;font-weight:500;font-size:12px;padding:4px 10px;border-radius:6px;background:rgba(67,160,71,0.08);border:1px solid rgba(67,160,71,0.2);transition:all 0.2s}
+.mwa:hover{background:rgba(67,160,71,0.2)}
+
+/* UNITS */
+.ug{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:14px;margin-top:14px}
+.uc{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color 0.2s}
+.uc:hover{border-color:var(--accent2)}
+.uch{background:var(--surface2);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.ucb{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:var(--accent3)}
+.ucc{font-size:11px;color:var(--gold);font-weight:600;background:rgba(249,168,37,0.1);padding:2px 8px;border-radius:10px;border:1px solid rgba(249,168,37,0.2)}
+.ucs{font-size:12px;color:var(--muted);padding:6px 14px;background:rgba(0,0,0,0.2);border-bottom:1px solid rgba(26,48,80,0.3)}
+.ucbody{padding:10px 14px}
+.ucp{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(26,48,80,0.3)}
+.ucp:last-child{border:none}
+.rl{font-size:10px;font-weight:700;min-width:62px;padding:2px 7px;border-radius:8px;text-align:center}
+.ucn{font-size:12px;color:var(--text);flex:1}
+.uct{font-size:11px;color:#81c784;text-decoration:none;padding:2px 7px;border-radius:5px;background:rgba(67,160,71,0.08);border:1px solid rgba(67,160,71,0.15)}
+.uct:hover{background:rgba(67,160,71,0.18)}
+.ucd{padding:8px 14px;background:rgba(0,0,0,0.15);border-top:1px solid rgba(26,48,80,0.3)}
+.ucdt{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.dt{display:inline-block;background:rgba(21,101,192,0.15);border:1px solid rgba(33,150,243,0.2);color:#90caf9;font-size:10px;padding:2px 7px;border-radius:10px;margin:2px;cursor:pointer;transition:all 0.2s}
+.dt:hover{background:rgba(21,101,192,0.3);border-color:var(--accent2)}
+</style>
+</head>
+<body>
+
+<!-- MODAL -->
+<div class="ov" id="ov" onclick="closeOv(event)">
+  <div class="modal">
+    <button class="mc" onclick="closeModal()">✕</button>
+    <div class="mpa">
+      <div class="mph-ld" id="mPhWrap"><div class="spinner"></div></div>
+      <div class="mib">
+        <div class="mn" id="mNm"></div>
+        <div class="mg" id="mGu"></div>
+        <div class="mp" id="mPo"></div>
+        <div class="mfn" id="mFn"></div>
+      </div>
+    </div>
+    <div class="mbody">
+      <div class="msect">
+        <div class="mst">Identificação</div>
+        <div class="mgrid">
+          <div class="mf"><label>Matrícula</label><span id="mMa"></span></div>
+          <div class="mf"><label>ID</label><span id="mId"></span></div>
+          <div class="mf"><label>Unidade</label><span id="mUn"></span></div>
+          <div class="mf"><label>Batalhão</label><span id="mBp"></span></div>
+          <div class="mf"><label>CPAI</label><span id="mCp"></span></div>
+          <div class="mf"><label>Destacamento</label><span id="mDe"></span></div>
+        </div>
+      </div>
+      <div class="msect">
+        <div class="mst">Situação</div>
+        <div class="mgrid">
+          <div class="mf"><label>Situação</label><span id="mSi"></span></div>
+          <div class="mf"><label>Retorno (SFC)</label><span id="mRe"></span></div>
+          <div class="mf" style="grid-column:1/-1"><label>Última Atualização</label><span id="mAt"></span></div>
+        </div>
+      </div>
+      <div class="msect">
+        <div class="mst">Comando da Unidade</div>
+        <div class="mgrid">
+          <div class="mf"><label>Comandante</label><span id="mCm"></span></div>
+          <div class="mf"><label>Subcomandante</label><span id="mSu"></span></div>
+        </div>
+      </div>
+      <div class="msect">
+        <div class="mst">Contato</div>
+        <div id="mCa"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="hdr">
+    <div class="logo">PM</div>
+    <div class="hdr-title">
+      <h1>EFETIVO CPI 2026</h1>
+      <p>COMANDO DE POLICIAMENTO DO INTERIOR — MARANHÃO</p>
+    </div>
+    <div class="hdr-right">
+      <div class="badge-count" id="totalBadge">⏳ Carregando...</div>
+      <a href="https://docs.google.com/spreadsheets/d/1CgKIAAyd0DWeD-EtNrvxYFgi8sUa2MiAEMBf_pj4lSw/edit?usp=sharing" target="_blank" class="ext-link link-green">📊 Efetivo</a>
+      <a href="https://docs.google.com/spreadsheets/d/17pN7-2WQiIurBrLcmLcrh5g9CQYo66JVnLGMIph5DEY/edit?usp=sharing" target="_blank" class="ext-link link-blue">🗺 Mapa de Força</a>
+    </div>
+  </div>
+</header>
+
+<div class="tabs-bar">
+  <div class="tabs-inner">
+    <div class="tab active" onclick="showTab('ef')">👥 Consulta de Efetivo</div>
+    <div class="tab" onclick="showTab('un')">🏛 Unidades & Comando</div>
+  </div>
+</div>
+
+<div class="main">
+
+<div id="tab-ef">
+  <div class="fp">
+    <div class="fp-title">🔍 Filtros de Pesquisa</div>
+    <div class="filter-row fr1">
+      <div class="fg"><label>Nome Completo / Nome de Guerra</label><input type="text" id="fNm" placeholder="Buscar por nome..." oninput="applyFilters()"></div>
+      <div class="fg"><label>Matrícula</label><input type="text" id="fMa" placeholder="Ex: 133.306" oninput="applyFilters()"></div>
+      <div class="fg"><label>ID</label><input type="text" id="fId" placeholder="Ex: 415698" oninput="applyFilters()"></div>
+      <div class="fg"><label>Contato</label><input type="text" id="fCo" placeholder="Dígitos do número..." oninput="applyFilters()"></div>
+      <div class="fg"><label>Destacamento / Cidade</label><input type="text" id="fDe" placeholder="Ex: BACABAL, SEDE..." oninput="applyFilters()"></div>
+      <div class="fg"><label>Função no Batalhão</label>
+        <select id="fFu" onchange="applyFilters()">
+          <option value="">Todas as Funções</option>
+          <option value="CMT">CMT — Comandante</option>
+          <option value="SUB CMT">SUB CMT — Subcomandante</option>
+          <option value="P1">P1 — Pessoal / Escala</option>
+          <option value="P2">P2 — Inteligência</option>
+          <option value="P3">P3 — Operações</option>
+          <option value="P4">P4 — Logística</option>
+          <option value="P5">P5 — Comunicação Social</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-row fr2">
+      <div class="fg"><label>CPA / Região</label>
+        <select id="fCp" onchange="applyFilters()">
+          <option value="">Todos os CPAIs</option>
+          <option value="CPA I-1">CPA I-1</option>
+<option value="CPA I-2">CPA I-2</option>
+<option value="CPA I-3">CPA I-3</option>
+<option value="CPA I-4">CPA I-4</option>
+<option value="CPA I-5">CPA I-5</option>
+<option value="CPA I-6">CPA I-6</option>
+<option value="CPA I-7">CPA I-7</option>
+<option value="CPA I-8">CPA I-8</option>
+<option value="CPI">CPI</option>
+        </select>
+      </div>
+      <div class="fg"><label>Batalhão</label>
+        <select id="fBp" onchange="applyFilters()">
+          <option value="">Todos os Batalhões</option>
+          <option value="10º BPM">10º BPM</option>
+<option value="12º BPM">12º BPM</option>
+<option value="15º BPM">15º BPM</option>
+<option value="16º BPM">16º BPM</option>
+<option value="17º BPM">17º BPM</option>
+<option value="18º BPM">18º BPM</option>
+<option value="19º BPM">19º BPM</option>
+<option value="21º BPM - TIMON">21º BPM - TIMON</option>
+<option value="23º BPM">23º BPM</option>
+<option value="24º BPM">24º BPM</option>
+<option value="25º BPM">25º BPM</option>
+<option value="26º BPM">26º BPM</option>
+<option value="27º BPM">27º BPM</option>
+<option value="28º BPM">28º BPM</option>
+<option value="29º BPM">29º BPM</option>
+<option value="2º BPM">2º BPM</option>
+<option value="31º BPM">31º BPM</option>
+<option value="32º BPM">32º BPM</option>
+<option value="34º BPM">34º BPM</option>
+<option value="35º BPM">35º BPM</option>
+<option value="36º BPM">36º BPM</option>
+<option value="37º BPM">37º BPM</option>
+<option value="3º BPM">3º BPM</option>
+<option value="41º BPM">41º BPM</option>
+<option value="44º BPM">44º BPM</option>
+<option value="45º BPM">45º BPM</option>
+<option value="46º BPM">46º BPM</option>
+<option value="47º BPM">47º BPM</option>
+<option value="4º BPM">4º BPM</option>
+<option value="5º BPM">5º BPM</option>
+<option value="7º BPM">7º BPM</option>
+<option value="CPA I-4 HQ">CPA I-4 HQ</option>
+<option value="CPI">CPI</option>
+        </select>
+      </div>
+      <div class="fg"><label>Posto / Graduação</label>
+        <select id="fPo" onchange="applyFilters()">
+          <option value="">Todos os Postos</option>
+          <option value="CEL">CEL</option>
+<option value="TEN CEL">TEN CEL</option>
+<option value="MAJ">MAJ</option>
+<option value="CAP">CAP</option>
+<option value="1º TEN">1º TEN</option>
+<option value="2º TEN">2º TEN</option>
+<option value="ST/SUBTEN">ST/SUBTEN</option>
+<option value="1º SGT">1º SGT</option>
+<option value="2º SGT">2º SGT</option>
+<option value="3º SGT">3º SGT</option>
+<option value="CB/CABO">CB/CABO</option>
+<option value="SD/SOLDADO">SD/SOLDADO</option>
+<option value="ASP OF">ASP OF</option>
+<option value="OUTROS">OUTROS</option>
+        </select>
+      </div>
+      <div class="fg"><label>Situação</label>
+        <select id="fSi" onchange="applyFilters()">
+          <option value="">Todas as Situações</option>
+          <option value="PRONTO">PRONTO</option>
+<option value="FÉRIAS">FÉRIAS</option>
+<option value="JMS">JMS</option>
+<option value="LP">LP</option>
+<option value="RESTRIÇÃO">RESTRIÇÃO</option>
+<option value="INCAPAZ">INCAPAZ</option>
+<option value="ADIDO">ADIDO</option>
+<option value="AG. RESERVA">AG. RESERVA</option>
+<option value="AG. REFORMA">AG. REFORMA</option>
+<option value="LICENÇA">LICENÇA</option>
+<option value="SAÚDE">SAÚDE</option>
+<option value="CEDIDO">CEDIDO</option>
+<option value="FALECIDO">FALECIDO</option>
+<option value="CURSO">CURSO</option>
+        </select>
+      </div>
+      <div class="fg"><label>Retorno (SFC)</label><input type="text" id="fRe" placeholder="Ex: 02/04/2026" oninput="applyFilters()"></div>
+      <div class="fg"><label>Última Atualização</label><input type="text" id="fAt" placeholder="Ex: 20/03/2026" oninput="applyFilters()"></div>
+    </div>
+    <div class="fa">
+      <button class="btn btn-ghost" onclick="clearFilters()">✕ Limpar Filtros</button>
+      <div class="rc">Exibindo <span id="cntSp">0</span> de <span id="totSp">0</span> policiais</div>
+      <span class="hint">· Clique em qualquer linha para ver o perfil completo com foto</span>
+    </div>
+  </div>
+
+  <div class="tw">
+    <div class="ts-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:44px">Foto</th>
+            <th onclick="sb('cpai')" id="th-cpai">CPAI</th>
+            <th onclick="sb('bpm')" id="th-bpm">Batalhão</th>
+            <th onclick="sb('pg')" id="th-pg">Posto/Grad.</th>
+            <th onclick="sb('ng')" id="th-ng">Nome de Guerra</th>
+            <th onclick="sb('nc')" id="th-nc">Nome Completo</th>
+            <th onclick="sb('m')" id="th-m">Matrícula</th>
+            <th onclick="sb('id')" id="th-id">ID</th>
+            <th>Contato</th>
+            <th onclick="sb('d')" id="th-d">Destacamento</th>
+            <th>Funções</th>
+            <th onclick="sb('s')" id="th-s">Situação</th>
+            <th onclick="sb('r')" id="th-r">Retorno</th>
+            <th onclick="sb('da')" id="th-da">Últ. Atualização</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="14"><div class="loading"><div class="spinner"></div>Carregando dados...<br><small style="margin-top:8px;display:block">Aguarde um momento</small></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pg" id="pgBar"></div>
+  </div>
+</div>
+
+<div id="tab-un" style="display:none">
+  <div class="fp">
+    <div class="fp-title">🔍 Filtrar Unidades</div>
+    <div class="filter-row" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="fg"><label>Buscar</label><input type="text" id="uSe" placeholder="Nome ou cidade..." oninput="renderUnits()"></div>
+      <div class="fg"><label>CPAI</label>
+        <select id="uCp" onchange="renderUnits()">
+          <option value="">Todos os CPAIs</option>
+          <option value="CPA I-1">CPA I-1</option>
+<option value="CPA I-2">CPA I-2</option>
+<option value="CPA I-3">CPA I-3</option>
+<option value="CPA I-4">CPA I-4</option>
+<option value="CPA I-5">CPA I-5</option>
+<option value="CPA I-6">CPA I-6</option>
+<option value="CPA I-7">CPA I-7</option>
+<option value="CPA I-8">CPA I-8</option>
+<option value="CPI">CPI</option>
+        </select>
+      </div>
+      <div class="fg"><label>Destacamento</label><input type="text" id="uDe" placeholder="Cidade..." oninput="renderUnits()"></div>
+    </div>
+  </div>
+  <div class="ug" id="unitsGrid"></div>
+</div>
+
+</div>
+
+<script>
+var PAGE_SIZE = 50;
+var FOLDER_ID = '1GHOOmlk5Jxq6c43G47n4pv1TqVwEpOMx';
+var P_DESC = {'CMT':'Comandante','SUB CMT':'Subcomandante','P1':'P1 - Pessoal/Escala','P2':'P2 - Inteligência','P3':'P3 - Operações','P4':'P4 - Logística','P5':'P5 - Comunicação Social'};
+var FN_CLS = {'CMT':'fn fc','SUB CMT':'fn fs','P1':'fn f1','P2':'fn f2','P3':'fn f3','P4':'fn f4','P5':'fn f5'};
+
+var filtered = [], sortCol = '', sortDir = 1, curPage = 1;
+var photoCache = {}, folderIdx = null, folderLoading = false, folderCbs = [];
+
+window.onload = function() {
+  if (typeof RAW === 'undefined' || typeof UNITS === 'undefined') {
+    document.getElementById('tbody').innerHTML = '<tr><td colspan="14"><div class="loading" style="color:#ef9a9a">⚠ Erro: arquivo dados.js não encontrado.<br>Certifique-se de que dados.js está na mesma pasta que index.html no repositório.</div></td></tr>';
+    return;
+  }
+  filtered = RAW;
+  var n = RAW.length.toLocaleString('pt-BR');
+  document.getElementById('totalBadge').textContent = n + ' Policiais';
+  document.getElementById('totSp').textContent = n;
+  document.getElementById('cntSp').textContent = n;
+  renderTable();
+  renderUnits();
+};
+
+// Photo functions
+function loadFolderIdx(cb) {
+  if (folderIdx !== null) { cb(folderIdx); return; }
+  folderCbs.push(cb);
+  if (folderLoading) return;
+  folderLoading = true;
+  var url = 'https://www.googleapis.com/drive/v3/files?q=%27' + FOLDER_ID + '%27+in+parents+and+trashed%3Dfalse&fields=files(id%2Cname)&pageSize=1000';
+  fetch(url)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      folderIdx = {};
+      if (data.files) {
+        data.files.forEach(function(f) {
+          var m = f.name.match(/^(\d+)/);
+          if (m) folderIdx[m[1]] = f.id;
+        });
+      }
+      folderLoading = false;
+      folderCbs.forEach(function(fn) { fn(folderIdx); });
+      folderCbs = [];
+    })
+    .catch(function() {
+      folderIdx = {};
+      folderLoading = false;
+      folderCbs.forEach(function(fn) { fn(folderIdx); });
+      folderCbs = [];
+    });
+}
+
+function getPhotoUrl(o, cb) {
+  var keys = [];
+  if (o.id && o.id.trim()) keys.push(o.id.trim().replace(/\D/g, ''));
+  if (o.m && o.m.trim()) keys.push(o.m.trim().replace(/\D/g, ''));
+  keys = keys.filter(function(k) { return k.length > 0; });
+  for (var i = 0; i < keys.length; i++) {
+    if (photoCache[keys[i]] !== undefined) {
+      cb(photoCache[keys[i]] ? 'https://lh3.googleusercontent.com/d/' + photoCache[keys[i]] : null);
+      return;
+    }
+  }
+  loadFolderIdx(function(idx) {
+    var fid = null;
+    for (var i = 0; i < keys.length; i++) {
+      if (idx[keys[i]]) { fid = idx[keys[i]]; break; }
+    }
+    keys.forEach(function(k) { photoCache[k] = fid; });
+    cb(fid ? 'https://lh3.googleusercontent.com/d/' + fid : null);
+  });
+}
+
+// Modal
+function openModal(o) {
+  document.getElementById('mNm').textContent = o.nc || '—';
+  document.getElementById('mGu').textContent = o.ng ? '(' + o.ng + ')' : '';
+  document.getElementById('mPo').textContent = o.pg || '—';
+  document.getElementById('mMa').textContent = o.m || '—';
+  document.getElementById('mId').textContent = o.id || '—';
+  document.getElementById('mUn').textContent = o.u || '—';
+  document.getElementById('mBp').textContent = o.bpm || '—';
+  document.getElementById('mCp').textContent = o.cpai || '—';
+  document.getElementById('mDe').textContent = o.d || '—';
+  document.getElementById('mSi').textContent = o.s || '—';
+  document.getElementById('mRe').textContent = (o.r && o.r !== '-') ? o.r : '—';
+  document.getElementById('mAt').textContent = o.da || '—';
+  document.getElementById('mCm').textContent = o.cmt || '—';
+  document.getElementById('mSu').textContent = o.sub || '—';
+  var fnHtml = (o.funcoes && o.funcoes.length) ? o.funcoes.map(function(f) {
+    return '<span class="' + (FN_CLS[f] || 'fn f1') + '" title="' + (P_DESC[f] || f) + '">' + f + '</span>';
+  }).join(' ') : '';
+  document.getElementById('mFn').innerHTML = fnHtml;
+  var wa = makeWA(o.c);
+  document.getElementById('mCa').innerHTML = wa
+    ? '<a href="' + wa + '" target="_blank" class="mwa">📱 Abrir WhatsApp · ' + (o.c || '') + '</a>'
+    : '<span class="no-ph">' + (o.c || 'Sem contato') + '</span>';
+  var wrap = document.getElementById('mPhWrap');
+  wrap.className = 'mph-ld';
+  wrap.innerHTML = '<div class="spinner"></div>';
+  getPhotoUrl(o, function(url) {
+    if (url) {
+      wrap.className = '';
+      wrap.innerHTML = '<img class="mphoto" src="' + url + '" alt="foto" onerror="this.parentNode.className='mph-ph';this.parentNode.innerHTML='👤'">';
+    } else {
+      wrap.className = 'mph-ph';
+      wrap.innerHTML = '👤';
+    }
+  });
+  document.getElementById('ov').className = 'ov open';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('ov').className = 'ov';
+  document.body.style.overflow = '';
+}
+function closeOv(e) { if (e.target === document.getElementById('ov')) closeModal(); }
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+// UI helpers
+function showTab(t) {
+  document.getElementById('tab-ef').style.display = t === 'ef' ? 'block' : 'none';
+  document.getElementById('tab-un').style.display = t === 'un' ? 'block' : 'none';
+  document.querySelectorAll('.tab').forEach(function(el, i) {
+    el.className = 'tab' + ((['ef','un'][i] === t) ? ' active' : '');
+  });
+}
+
+function makeWA(raw) {
+  if (!raw || !raw.trim() || raw === '-') return null;
+  var d = raw.replace(/[^0-9]/g, '');
+  return d.length >= 8 ? 'https://wa.me/55' + d : null;
+}
+
+function sitBadge(s) {
+  if (!s || s === '-' || !s.trim()) return '<span class="bdg bgr">—</span>';
+  var u = s.toUpperCase();
+  if (u === 'PRONTO') return '<span class="bdg bg">● PRONTO</span>';
+  if (u.indexOf('FÉRIAS') >= 0 || u === 'FERIAS') return '<span class="bdg bb">✦ FÉRIAS</span>';
+  if (u.indexOf('JMS') === 0) return '<span class="bdg by">⚕ JMS</span>';
+  if (u === 'LP' || u === 'L.P') return '<span class="bdg bb">LP</span>';
+  if (u.indexOf('RESTRI') >= 0) return '<span class="bdg by">⚠ REST.</span>';
+  if (u.indexOf('INCAPAZ') >= 0 || u.indexOf('INCPAZ') >= 0) return '<span class="bdg br">✕ INCAPAZ</span>';
+  if (u.indexOf('ADIDO') >= 0) return '<span class="bdg bb">↗ ADIDO</span>';
+  if (u.indexOf('AG.') >= 0) return '<span class="bdg bgr">⟳ ' + s.substring(0, 12) + '</span>';
+  if (u.indexOf('LICENÇA') >= 0) return '<span class="bdg bb">📋 LICENÇA</span>';
+  if (u.indexOf('SAÚDE') >= 0 || u.indexOf('SÁUDE') >= 0) return '<span class="bdg by">⚕ SAÚDE</span>';
+  if (u === 'FALECIDO') return '<span class="bdg br">✝ FALECIDO</span>';
+  if (u.indexOf('CURSO') >= 0) return '<span class="bdg bb">📚 CURSO</span>';
+  if (u.indexOf('CEDIDO') >= 0) return '<span class="bdg bgr">⇄ CEDIDO</span>';
+  return '<span class="bdg bgr">' + s.substring(0, 14) + '</span>';
+}
+
+function cpaiTag(c) {
+  if (!c) return '';
+  var clr = {'CPA I-1':'#e3f2fd','CPA I-2':'#f3e5f5','CPA I-3':'#e8f5e9','CPA I-4':'#fff3e0','CPA I-5':'#fce4ec','CPA I-6':'#e0f7fa','CPA I-7':'#f9fbe7','CPA I-8':'#ede7f6','CPI':'#fff8e1'};
+  return '<span class="bdg" style="background:rgba(0,0,0,0.2);color:' + (clr[c] || '#90caf9') + ';border:1px solid rgba(255,255,255,0.1)">' + c + '</span>';
+}
+
+function fnCells(fns) {
+  if (!fns || !fns.length) return '<span class="no-ph">—</span>';
+  return fns.map(function(f) {
+    return '<span class="' + (FN_CLS[f] || 'fn f1') + '" title="' + (P_DESC[f] || f) + '">' + f + '</span>';
+  }).join(' ');
+}
+
+function renderTable() {
+  var tb = document.getElementById('tbody');
+  var s = (curPage - 1) * PAGE_SIZE, pg = filtered.slice(s, s + PAGE_SIZE);
+  if (!filtered.length) {
+    tb.innerHTML = '<tr><td colspan="14"><div class="empty"><div style="font-size:40px;margin-bottom:10px">🔍</div><p>Nenhum policial encontrado.</p></div></td></tr>';
+    document.getElementById('pgBar').innerHTML = '';
+    return;
+  }
+  var rows = '';
+  for (var i = 0; i < pg.length; i++) {
+    var o = pg[i], idx = s + i;
+    var wa = makeWA(o.c);
+    var ph = wa ? '<a href="' + wa + '" target="_blank" class="ph-a" onclick="event.stopPropagation()">📱 ' + (o.c || '') + '</a>' : '<span class="no-ph">' + (o.c || '—') + '</span>';
+    var dest = (o.d || '').length > 20 ? (o.d || '').substring(0, 20) + '…' : (o.d || '—');
+    rows += '<tr onclick="openModal(filtered[' + idx + '])">'
+      + '<td style="width:44px;padding:6px 8px"><div class="thumb-ph">👤</div></td>'
+      + '<td class="td-cpai">' + cpaiTag(o.cpai) + '</td>'
+      + '<td class="td-posto">' + ((o.bpm && o.bpm !== o.u) ? o.bpm.substring(0, 14) : '—') + '</td>'
+      + '<td class="td-posto">' + ((o.pg || '').substring(0, 18) || '—') + '</td>'
+      + '<td>' + (o.ng || '—') + '</td>'
+      + '<td class="td-name" title="' + (o.nc || '') + '">' + ((o.nc || '').substring(0, 26) || '—') + '</td>'
+      + '<td>' + ((o.m || '').substring(0, 12) || '—') + '</td>'
+      + '<td>' + ((o.id || '').substring(0, 8) || '—') + '</td>'
+      + '<td>' + ph + '</td>'
+      + '<td title="' + (o.d || '') + '">' + dest + '</td>'
+      + '<td><div style="display:flex;gap:3px;flex-wrap:wrap">' + fnCells(o.funcoes) + '</div></td>'
+      + '<td>' + sitBadge(o.s) + '</td>'
+      + '<td>' + ((o.r && o.r !== '-') ? o.r : '—') + '</td>'
+      + '<td>' + (o.da || '—') + '</td>'
+      + '</tr>';
+  }
+  tb.innerHTML = rows;
+  renderPag();
+}
+
+function renderPag() {
+  var tot = Math.ceil(filtered.length / PAGE_SIZE);
+  var bar = document.getElementById('pgBar');
+  if (tot <= 1) { bar.innerHTML = ''; return; }
+  var show = {};
+  [1, tot, curPage, curPage - 1, curPage + 1].forEach(function(p) { if (p >= 1 && p <= tot) show[p] = 1; });
+  var pages = Object.keys(show).map(Number).sort(function(a, b) { return a - b; });
+  var h = '<button class="pgb" onclick="gp(' + (curPage - 1) + ')"' + (curPage === 1 ? ' disabled' : '') + '>‹</button>';
+  var prev = 0;
+  for (var i = 0; i < pages.length; i++) {
+    var p = pages[i];
+    if (prev && p - prev > 1) h += '<span class="pgi">…</span>';
+    h += '<button class="pgb' + (p === curPage ? ' active' : '') + '" onclick="gp(' + p + ')">' + p + '</button>';
+    prev = p;
+  }
+  h += '<button class="pgb" onclick="gp(' + (curPage + 1) + ')"' + (curPage === tot ? ' disabled' : '') + '>›</button>';
+  h += '<span class="pgi">Pág ' + curPage + ' de ' + tot + '</span>';
+  bar.innerHTML = h;
+}
+
+function gp(p) {
+  var tot = Math.ceil(filtered.length / PAGE_SIZE);
+  if (p < 1 || p > tot) return;
+  curPage = p;
+  renderTable();
+  document.querySelector('.tw').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function applyFilters() {
+  var nm = document.getElementById('fNm').value.toLowerCase().trim();
+  var ma = document.getElementById('fMa').value.toLowerCase().trim();
+  var id = document.getElementById('fId').value.toLowerCase().trim();
+  var co = document.getElementById('fCo').value.replace(/[^0-9]/g, '').trim();
+  var de = document.getElementById('fDe').value.toLowerCase().trim();
+  var fu = document.getElementById('fFu').value;
+  var cp = document.getElementById('fCp').value;
+  var bp = document.getElementById('fBp').value;
+  var po = document.getElementById('fPo').value;
+  var si = document.getElementById('fSi').value.toLowerCase();
+  var re = document.getElementById('fRe').value.toLowerCase().trim();
+  var at = document.getElementById('fAt').value.toLowerCase().trim();
+
+  filtered = RAW.filter(function(o) {
+    if (nm && (o.nc || '').toLowerCase().indexOf(nm) < 0 && (o.ng || '').toLowerCase().indexOf(nm) < 0) return false;
+    if (ma && (o.m || '').toLowerCase().indexOf(ma) < 0) return false;
+    if (id && (o.id || '').toLowerCase().indexOf(id) < 0) return false;
+    if (co && (o.c || '').replace(/[^0-9]/g, '').indexOf(co) < 0) return false;
+    if (de && (o.d || '').toLowerCase().indexOf(de) < 0) return false;
+    if (fu && (!o.funcoes || o.funcoes.indexOf(fu) < 0)) return false;
+    if (cp && o.cpai !== cp) return false;
+    if (bp && o.bpm !== bp) return false;
+    if (po && o.rg !== po) return false;
+    if (si && (o.s || '').toLowerCase().indexOf(si) < 0) return false;
+    if (re && (o.r || '').toLowerCase().indexOf(re) < 0) return false;
+    if (at && (o.da || '').toLowerCase().indexOf(at) < 0) return false;
+    return true;
+  });
+
+  if (sortCol) doSort();
+  curPage = 1;
+  document.getElementById('cntSp').textContent = filtered.length.toLocaleString('pt-BR');
+  renderTable();
+}
+
+function clearFilters() {
+  ['fNm','fMa','fId','fCo','fDe','fRe','fAt'].forEach(function(i) { document.getElementById(i).value = ''; });
+  ['fFu','fCp','fBp','fPo','fSi'].forEach(function(i) { document.getElementById(i).value = ''; });
+  applyFilters();
+}
+
+function sb(col) {
+  if (sortCol === col) { sortDir *= -1; } else { sortCol = col; sortDir = 1; }
+  document.querySelectorAll('th').forEach(function(t) { t.className = ''; });
+  var th = document.getElementById('th-' + col);
+  if (th) th.className = sortDir === 1 ? 'sa' : 'sd';
+  doSort(); curPage = 1; renderTable();
+}
+
+function doSort() {
+  filtered.sort(function(a, b) {
+    var va = (a[sortCol] || '').toString().toLowerCase();
+    var vb = (b[sortCol] || '').toString().toLowerCase();
+    return va < vb ? -sortDir : va > vb ? sortDir : 0;
+  });
+}
+
+function renderUnits() {
+  var se = (document.getElementById('uSe').value || '').toLowerCase().trim();
+  var cp = document.getElementById('uCp').value;
+  var de = (document.getElementById('uDe').value || '').toLowerCase().trim();
+  var grid = document.getElementById('unitsGrid'), html = '';
+  for (var i = 0; i < UNITS.length; i++) {
+    var u = UNITS[i];
+    if (cp && u.cpai !== cp) continue;
+    if (se && u.bpm.toLowerCase().indexOf(se) < 0 && u.sede.toLowerCase().indexOf(se) < 0) continue;
+    if (de) {
+      var found = false;
+      for (var j = 0; j < u.destacamentos.length; j++) {
+        if (u.destacamentos[j].municipio.toLowerCase().indexOf(de) >= 0) { found = true; break; }
+      }
+      if (!found) continue;
+    }
+    var roles = [
+      {role:'CMT',name:u.cmt,tel:u.cmt_tel},{role:'SUB CMT',name:u.sub,tel:u.sub_tel},
+      {role:'P1',name:u.p1,tel:u.p1_tel},{role:'P2',name:u.p2,tel:u.p2_tel},
+      {role:'P3',name:u.p3,tel:u.p3_tel},{role:'P4',name:u.p4,tel:u.p4_tel},
+      {role:'P5',name:u.p5,tel:u.p5_tel}
+    ].filter(function(r) { return r.name && r.name.trim() && r.name.trim() !== '-'; });
+    var rHtml = roles.map(function(r) {
+      var cls = (FN_CLS[r.role] || 'fn f1').replace('fn ','rl ');
+      var wa = makeWA(r.tel);
+      var tHtml = wa ? '<a href="' + wa + '" target="_blank" class="uct">📱 ' + r.tel + '</a>' : '<span style="font-size:11px;color:var(--muted)">' + (r.tel||'') + '</span>';
+      return '<div class="ucp"><span class="rl ' + (FN_CLS[r.role]||'fn f1').split(' ')[1] + '" title="' + (P_DESC[r.role]||r.role) + '">' + r.role + '</span><span class="ucn">' + r.name + '</span>' + tHtml + '</div>';
+    }).join('');
+    var dHtml = u.destacamentos.map(function(d) {
+      return '<span class="dt" onclick="filterByDest(\'' + d.municipio + '\')">' + d.municipio + '</span>';
+    }).join('');
+    html += '<div class="uc"><div class="uch"><span class="ucb">' + u.bpm + '</span><span class="ucc">' + u.cpai + '</span></div>'
+      + '<div class="ucs">📍 Sede: <strong>' + u.sede + '</strong></div>'
+      + '<div class="ucbody">' + rHtml + '</div>'
+      + '<div class="ucd"><div class="ucdt">Destacamentos (' + u.destacamentos.length + ')</div>' + dHtml + '</div></div>';
+  }
+  grid.innerHTML = html || '<div style="padding:40px;text-align:center;color:var(--muted)">Nenhuma unidade encontrada.</div>';
+}
+
+function filterByDest(municipio) {
+  showTab('ef');
+  document.getElementById('fDe').value = municipio;
+  applyFilters();
+}
+</script>
+</body>
+</html>
